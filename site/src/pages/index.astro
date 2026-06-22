@@ -8,27 +8,34 @@ const total = ideas.length;
 const goodFirst = ideas.filter((i) => i.difficulty === "good-first").length;
 const claimed = ideas.filter((i) => i.status === "claimed" || i.status === "building").length;
 const shipped = ideas.filter((i) => i.status === "shipped").length;
+const categoryCount = new Set(ideas.map((i) => i.category)).size;
 
 const featured = [...ideas]
   .sort((a, b) => (b.difficulty === "good-first" ? 1 : 0) - (a.difficulty === "good-first" ? 1 : 0) || a.num - b.num)
   .slice(0, 6);
 
+const premise = [
+  { tab: "DIR · #0001", band: "THE GAP", title: "Ecosystem gaps, uncatalogued.", body: "CKB has powerful primitives — the Cell model, Spore/DOB, RGB++, Fiber — but the gaps between them aren't sorted, specced, or claimable.", tags: ["RISC-V VM", "PRIMITIVE"], n: total, l: "ENTRIES", foot: "PAGE 01 / 03" },
+  { tab: "DIR · #0002", band: "THE IDEA", title: "Every gap, a claimable entry.", body: "Each idea carries a spec, CKB properties, difficulty, and acceptance criteria — the exact bar a build must clear to count as shipped.", tags: ["GOOD-FIRST", "SPEC"], n: goodFirst, l: "GOOD-FIRST", foot: "PAGE 02 / 03" },
+  { tab: "DIR · #0003", band: "CLAIM IT", title: "Commit. Stake. Ship.", body: "Claim an idea publicly on-chain, optionally stake CKB to hold it exclusively, then ship against the criteria to release the bounty.", tags: ["SLASH→NEXT", "ON-CHAIN"], n: categoryCount, l: "CATEGORIES", foot: "PAGE 03 / 03" },
+];
+
 const steps = [
-  ["01", "Browse", "Scan the registry of CKB-native ideas, indexed by state and signal."],
-  ["02", "Wish", "Signal demand on-chain. Wished ideas rise so builders see what's wanted."],
-  ["03", "Commit", "Claim an idea with a public attestation and a deadline. Stake CKB to claim it exclusively."],
-  ["04", "Build", "Do the work in the open. Post progress; your track record compounds."],
-  ["05", "Ship", "Link the project, meet the acceptance criteria, get the bounty released."],
-  ["06", "Reputation", "Every shipped idea compounds into a portable, on-chain builder record."],
+  ["01", "Browse", "Open the catalog. 30+ ideas, mapped by CKB property."],
+  ["02", "Wish", "Signal demand. The loudest ideas surface to the top."],
+  ["03", "Commit", "Make it public, on-chain. Optionally stake CKB to claim exclusively."],
+  ["04", "Build", "Ship to a deadline. Lapse and the stake routes to the next builder."],
+  ["05", "Ship", "A curator confirms acceptance criteria. The bounty releases."],
+  ["06", "Compound", "Reputation compounds — across categories, properties, seasons."],
 ];
 
 const faqs = [
-  ["Is it free?", "Browsing, wishing, and committing are free. Staking and funding bounties are optional and denominated in CKB."],
-  ["Who owns the ideas?", "Ideas in the registry are CC0 — public domain. Any project you build from one is entirely yours."],
-  ["How is a bounty released?", "A ship is checked against the idea's acceptance criteria and confirmed by a curator multisig. Funds live in user Cells — the platform never custodies them. Release is semi-trusted in v1, by design."],
-  ["What if I claim and don't finish?", "A free claim simply lapses and the idea reopens. A staked claim can return to you, slash to a community pool, or convert into a bounty that funds the next builder — your choice when you stake."],
-  ["Is this on mainnet?", "No. The on-chain layer ships to testnet first, and the escrow lock is audited before it ever holds real CKB on mainnet."],
-  ["How do I add an idea?", "Open a pull request that adds an ideas/ file. CI validates it against the schema. See CONTRIBUTING."],
+  ["What is dir?", "An open directory of CKB-native project ideas, with on-chain commitments, stakes, and bounties. Ideas are CC0; the projects built from them belong to their builders."],
+  ["Who can submit an idea?", "Anyone — open a pull request that adds an ideas/ file. CI validates it against the schema. The idea enters the catalog under CC0."],
+  ["What does staking do?", "Staking CKB claims an idea exclusively, with a deadline you set. Ship in time and your stake returns. Lapse and — if you chose slash-to-next — it funds the next builder."],
+  ["How are ideas marked shipped?", "A build is checked against the acceptance criteria attached to the idea and confirmed by a curator multisig. Funds live in user Cells and are never custodied by the platform."],
+  ["Is there a fee?", "A small protocol fee on bounty funding and payout. See SPEC.md for exact terms. Everything else flows to builders."],
+  ["What network does it run on?", "CKB testnet first — the escrow lock is audited before it holds real CKB on mainnet."],
 ];
 ---
 
@@ -41,14 +48,12 @@ const faqs = [
         <span class="wordmark" style="font-size:24px"><span class="br">[</span><b>dir</b><span class="br">]</span></span>
         <span class="mc">DIR · v0.1 · CKB-NATIVE PROJECT DIRECTORY · CC0</span>
       </div>
-
       <div class="metastrip">
         <div class="cell"><span class="mc">ENTRIES</span><span class="v">{String(total).padStart(2, "0")}</span></div>
         <div class="cell"><span class="mc">CLAIMED</span><span class="v">{String(claimed).padStart(2, "0")}</span></div>
         <div class="cell"><span class="mc">SHIPPED</span><span class="v">{String(shipped).padStart(2, "0")}</span></div>
         <div class="cell"><span class="mc">GOOD-FIRST</span><span class="v">{String(goodFirst).padStart(2, "0")}</span></div>
       </div>
-
       <div class="heromain">
         <div>
           <h1>Build something <span class="accent">CKB-native</span>.</h1>
@@ -59,19 +64,46 @@ const faqs = [
           </div>
         </div>
         <aside>
-          <div class="reg">
-            <div class="inner">
-              <span class="mc">REGISTRATION</span>
-              <div style="margin-top:14px">
-                <div class="row"><span class="k">REGISTRY</span><span>DIR / TESTNET</span></div>
-                <div class="row"><span class="k">ENTRIES</span><span>{total}</span></div>
-                <div class="row"><span class="k">LICENSE</span><span>CC0 / APACHE-2.0</span></div>
-                <div class="row"><span class="k">AUTHORED</span><span>BY BUILDERS</span></div>
-              </div>
+          <div class="reg"><div class="inner">
+            <span class="mc">REGISTRATION</span>
+            <div style="margin-top:14px">
+              <div class="row"><span class="k">REGISTRY</span><span>DIR / TESTNET</span></div>
+              <div class="row"><span class="k">ENTRIES</span><span>{total}</span></div>
+              <div class="row"><span class="k">LICENSE</span><span>CC0 / APACHE-2.0</span></div>
+              <div class="row"><span class="k">AUTHORED</span><span>BY BUILDERS</span></div>
             </div>
-          </div>
+          </div></div>
           <div style="text-align:right;margin-top:10px"><span class="mc">FORM 0001 · MANIFEST</span></div>
         </aside>
+      </div>
+    </div>
+  </section>
+
+  <!-- PREMISE -->
+  <section class="section">
+    <div class="wrap">
+      <div class="head">
+        <span class="mc">THE PREMISE</span>
+        <h2>dir turns ecosystem gaps into claimable, fundable, shippable work.</h2>
+      </div>
+      <div class="premise">
+        {premise.map((c) => (
+          <article class="mcard">
+            <span class="idtab">{c.tab}</span>
+            <div class="mcard-outer"><div class="mcard-inner">
+              <div class="band open">{c.band}</div>
+              <div class="pbody">
+                <h3>{c.title}</h3>
+                <p>{c.body}</p>
+                <div class="ptags">{c.tags.map((t) => <span class="tag">{t}</span>)}</div>
+                <div class="pnum">
+                  <span class="brackets"><span class="n">{c.n}</span><span class="l">{c.l}</span></span>
+                </div>
+              </div>
+              <div class="mfoot"><span>DIR · ENTRY · CC0</span><span>{c.foot}</span></div>
+            </div></div>
+          </article>
+        ))}
       </div>
     </div>
   </section>
@@ -79,14 +111,11 @@ const faqs = [
   <!-- HOW IT WORKS -->
   <section class="section">
     <div class="wrap">
-      <div class="head">
-        <span class="mc">HOW IT WORKS</span>
-        <h2>From idea to shipped, in the open.</h2>
-      </div>
-      <div class="steps">
+      <div class="head"><span class="mc">HOW IT WORKS</span><h2>Six steps, fully on-chain.</h2></div>
+      <div class="steps6">
         {steps.map(([n, t, d]) => (
           <div class="step">
-            <span class="n">{n}</span>
+            <span class="nbox">{n}</span>
             <h3>{t}</h3>
             <p>{d}</p>
           </div>
@@ -100,67 +129,83 @@ const faqs = [
     <div class="wrap">
       <div class="head">
         <span class="mc">WHAT YOU CAN BUILD</span>
-        <h2>{total} ideas in the registry.</h2>
-        <p>Each one exploits what only CKB can do — the Cell model, Spore/DOB, RGB++, Fiber, OTX, on-chain verification.</p>
+        <h2>A live catalog. Real ideas. Pick one.</h2>
       </div>
-      <div class="grid">
-        {featured.map((idea) => <IdeaCard idea={idea} />)}
+      <div class="grid">{featured.map((idea) => <IdeaCard idea={idea} />)}</div>
+      <div style="margin-top:28px;border-top:1px solid var(--line);padding-top:22px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
+        <span class="mc">AND {total - featured.length} MORE IN THE CATALOG</span>
+        <a class="btn btn-solid" href="/ideas/">Open the catalog →</a>
       </div>
-      <div style="margin-top:28px"><a class="btn btn-ghost" href="/ideas/">See all {total} ideas →</a></div>
     </div>
   </section>
 
   <!-- FOR BUILDERS / FUNDERS -->
   <section class="section">
     <div class="wrap">
-      <div class="cols2">
-        <div class="panel"><div class="inner">
-          <span class="mc">FOR BUILDERS</span>
-          <h3 style="margin-top:10px">Find work worth doing.</h3>
-          <ul>
-            <li>Pick from a curated registry of real CKB gaps</li>
-            <li>Claim publicly; stake CKB to claim it exclusively</li>
-            <li>Ship, get the bounty, build a portable reputation</li>
-          </ul>
-          <a class="btn btn-violet" href="/ideas/">Browse ideas →</a>
-        </div></div>
-        <div class="panel"><div class="inner">
-          <span class="mc">FOR FUNDERS</span>
-          <h3 style="margin-top:10px">Fund what you want built.</h3>
-          <ul>
-            <li>Put a bounty on any idea in the registry</li>
-            <li>Funds escrowed in Cells — never custodied by the platform</li>
-            <li>Refunded automatically if no one ships in time</li>
-          </ul>
-          <a class="btn btn-ghost" href="/ideas/">Find an idea to fund →</a>
-        </div></div>
+      <div class="head"><span class="mc">WHO IT'S FOR</span></div>
+      <div class="bf">
+        <article class="mcard">
+          <span class="idtab">DIR · FOR BUILDERS</span>
+          <div class="mcard-outer"><div class="mcard-inner">
+            <div class="band open">FOR BUILDERS</div>
+            <div class="bfbody">
+              <h3>Skin in the game. Reputation that compounds.</h3>
+              <ul>
+                <li>Public commitments — on-chain, with deadlines you set yourself.</li>
+                <li>Stake CKB to claim an idea exclusively. Forfeit if you lapse.</li>
+                <li>Ship to acceptance criteria, release the bounty, build a verifiable history.</li>
+              </ul>
+              <a class="btn btn-violet" href="/ideas/">Claim an idea →</a>
+            </div>
+            <div class="mfoot"><span>DIR · FOR BUILDERS · CC0</span><span>PAGE 01 / 01</span></div>
+          </div></div>
+        </article>
+        <article class="mcard">
+          <span class="idtab">DIR · FOR FUNDERS</span>
+          <div class="mcard-outer"><div class="mcard-inner">
+            <div class="band open">FOR FUNDERS</div>
+            <div class="bfbody">
+              <h3>Fund the work the ecosystem actually wants.</h3>
+              <ul>
+                <li>Back ideas with bounties. Acceptance criteria gate the release.</li>
+                <li>Lapsed stakes can convert to your bounty pool, routed to the next builder.</li>
+                <li>Funds escrowed in Cells — never custodied by the platform.</li>
+              </ul>
+              <a class="btn btn-violet" href="/ideas/">Fund a bounty →</a>
+            </div>
+            <div class="mfoot"><span>DIR · FOR FUNDERS · CC0</span><span>PAGE 01 / 01</span></div>
+          </div></div>
+        </article>
       </div>
     </div>
   </section>
 
-  <!-- COMMITMENT TIERS -->
+  <!-- COMMITMENT PANEL -->
   <section class="section">
     <div class="wrap">
-      <div class="head">
-        <span class="mc">COMMITMENT, ON-CHAIN</span>
-        <h2>The more you stake, the louder the signal.</h2>
-      </div>
-      <div class="tiers">
-        <div class="tier cyan"><span class="t">Watching</span><p>Wish for an idea. A free on-chain demand signal.</p></div>
-        <div class="tier"><span class="t">Committed</span><p>A free public claim with a deadline. Non-exclusive.</p></div>
-        <div class="tier magenta"><span class="t">Staked</span><p>Lock CKB to claim exclusively. Skin in the game.</p></div>
-        <div class="tier violet"><span class="t">Backed</span><p>Staked, with a bounty attached. Funded and committed.</p></div>
-      </div>
+      <div class="head"><span class="mc">COMMITMENT · ON-CHAIN</span><h2>Four tiers. One contract.</h2></div>
+      <div class="cpanel-outer"><div class="cpanel">
+        <div class="grid4">
+          <div class="cell"><div class="t"><span class="sq" style="background:var(--cyan)"></span>WATCHING</div><p>Wished for the idea. A free on-chain demand signal — no commitment yet.</p></div>
+          <div class="cell"><div class="t"><span class="sq" style="background:var(--text)"></span>COMMITTED</div><p>Public on-chain claim with a deadline. No stake — reputation only.</p></div>
+          <div class="cell"><div class="t"><span class="sq" style="background:var(--magenta)"></span>STAKED</div><p>CKB locked behind a deadline. Claims the idea exclusively. Slash on lapse.</p></div>
+          <div class="cell"><div class="t"><span class="sq" style="background:var(--violet)"></span>BACKED</div><p>Staked plus a bounty funded. The fully loaded commitment.</p></div>
+        </div>
+        <div class="slashbar"><span class="mc">SLASH→NEXT · <span style="color:var(--magenta)">A LAPSED STAKE FUNDS THE NEXT BUILDER, NOT THE HOUSE.</span></span></div>
+      </div></div>
     </div>
   </section>
 
   <!-- FAQ -->
   <section class="section">
     <div class="wrap">
-      <div class="head"><span class="mc">FAQ</span><h2>Questions.</h2></div>
+      <div class="head"><span class="mc">FAQ</span></div>
       <div class="faq">
-        {faqs.map(([q, a]) => (
-          <details><summary>{q}</summary><p>{a}</p></details>
+        {faqs.map(([q, a], i) => (
+          <details class="item" open={i === 0}>
+            <summary><span class="q"><span class="qn">{String(i + 1).padStart(2, "0")}</span>{q}</span><span class="pm"></span></summary>
+            <p class="a">{a}</p>
+          </details>
         ))}
       </div>
     </div>
@@ -169,7 +214,9 @@ const faqs = [
   <!-- CTA -->
   <section class="cta">
     <div class="wrap">
-      <h2>Pick one. Ship it.</h2>
+      <span class="mc">DIR · CALL TO BUILD</span>
+      <h2>Pick one. <span class="accent">Ship it.</span></h2>
+      <p>The catalog is open. The chain is watching. Your reputation starts now.</p>
       <div class="row">
         <a class="btn btn-violet" href="/ideas/">Browse ideas →</a>
         <a class="btn btn-ghost" href="https://github.com/truthixify/dir/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener">Submit an idea</a>

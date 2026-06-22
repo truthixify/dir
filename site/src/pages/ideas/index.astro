@@ -1,16 +1,30 @@
 ---
 import Base from "../../layouts/Base.astro";
-import { getIdeas, DIFFICULTY_ORDER, DIFFICULTY_LABEL, STATUS_LABEL, STATE_CLASS } from "../../lib/ideas.js";
+import { getIdeas, DIFFICULTY_LABEL, STATUS_LABEL, STATE_CLASS } from "../../lib/ideas.js";
 
 const ideas = getIdeas();
 const categories = [...new Set(ideas.map((i) => i.category))].sort();
-const properties = [...new Set(ideas.flatMap((i) => i.ckb_properties))].sort();
-const difficulties = DIFFICULTY_ORDER.filter((d) => ideas.some((i) => i.difficulty === d));
+
+const SHORT = {
+  "Developer Tooling": "TOOLING",
+  "On-Chain Storage & Data Ownership": "STORAGE",
+  "Spore/DOB": "SPORE/DOB",
+  "RGB++ & Bitcoin": "RGB++",
+  "AI Agents": "AI AGENTS",
+  "OTX & Intent-Based": "OTX",
+  "Fiber Network": "FIBER",
+  "Identity & Security": "IDENTITY",
+  "Social & Community": "SOCIAL",
+};
 
 const goodFirst = ideas.filter((i) => i.difficulty === "good-first").length;
 const shipped = ideas.filter((i) => i.status === "shipped").length;
 const claimed = ideas.filter((i) => i.status === "claimed" || i.status === "building").length;
 const open = ideas.filter((i) => i.status === "open").length;
+
+const statusChips = [
+  ["", "All"], ["open", "Open"], ["claimed", "Claimed"], ["building", "Building"], ["shipped", "Shipped"],
+];
 ---
 
 <Base title="Catalog — dir" description="Every CKB-native idea in the registry, indexed by state and signal.">
@@ -20,17 +34,23 @@ const open = ideas.filter((i) => i.status === "open").length;
       <div class="wrap">
         <span class="mc">DIR · CATALOG</span>
         <h1>The catalog.</h1>
-        <p>Every idea in the registry, indexed by category, CKB property, and difficulty. Pick one and commit.</p>
+        <p>Every idea in the registry, indexed by state and signal. Pick one and commit.</p>
       </div>
     </section>
 
-    <!-- filters -->
-    <section class="filters">
+    <!-- filter chips -->
+    <section class="filterstrip">
       <div class="wrap">
-        <input type="search" id="q" placeholder="Search ideas…" autocomplete="off" />
-        <select id="category"><option value="">All categories</option>{categories.map((c) => <option value={c}>{c}</option>)}</select>
-        <select id="difficulty"><option value="">Any difficulty</option>{difficulties.map((d) => <option value={d}>{DIFFICULTY_LABEL[d]}</option>)}</select>
-        <select id="property"><option value="">Any CKB property</option>{properties.map((p) => <option value={p}>{p}</option>)}</select>
+        <span class="mc">FILTER</span>
+        {statusChips.map(([v, l]) => (
+          <button class={`chip${v === "" ? " active" : ""}`} data-group="status" data-value={v}>{l}</button>
+        ))}
+        <span class="chip-sep"></span>
+        <button class="chip active" data-group="cat" data-value="">All</button>
+        {categories.map((c) => (
+          <button class="chip" data-group="cat" data-value={c}>{SHORT[c] ?? c}</button>
+        ))}
+        <span class="sort mc">SORT · BY ID</span>
       </div>
     </section>
 
@@ -41,34 +61,31 @@ const open = ideas.filter((i) => i.status === "open").length;
       </div>
     </section>
 
-    <!-- list -->
+    <!-- rows -->
     <section>
-      <div class="wrap" style="padding-top:28px;padding-bottom:48px">
+      <div class="wrap" style="padding-top:28px">
         <div class="rows" id="rows">
-          {ideas.map((idea) => (
-            <div
-              class="row"
-              style={`--stripe: var(--${STATE_CLASS[idea.status] === "open" ? "line" : STATE_CLASS[idea.status]})`}
-              data-title={idea.title.toLowerCase()}
-              data-summary={(idea.summary || "").toLowerCase()}
-              data-category={idea.category}
-              data-difficulty={idea.difficulty}
-              data-properties={idea.ckb_properties.join("||")}
-            >
-              <span class="stripe"></span>
-              <span class="mc">#{String(idea.num).padStart(4, "0")}</span>
-              <span class={`pill ${STATE_CLASS[idea.status]}`}>
-                {idea.status !== "open" && <span class="pdot"></span>}{STATUS_LABEL[idea.status]}
-              </span>
-              <div>
-                <a class="rtitle" href={`/ideas/${idea.id}/`}>{idea.title}</a>
-                <span class="mc rcat" style="display:block">{idea.category}</span>
+          {ideas.map((idea) => {
+            const sc = STATE_CLASS[idea.status];
+            return (
+              <div class="row" style={`--stripe: var(--${sc === "open" ? "line" : sc})`} data-status={idea.status} data-category={idea.category}>
+                <span class="stripe"></span>
+                <span class="mc">#{String(idea.num).padStart(4, "0")}</span>
+                <span class={`pill ${sc}`}>{idea.status !== "open" && <span class="pdot"></span>}{STATUS_LABEL[idea.status]}</span>
+                <div>
+                  <a class="rtitle" href={`/ideas/${idea.id}/`}>{idea.title}</a>
+                  <span class="mc rcat" style="display:block">{idea.category}</span>
+                </div>
+                <span class={`tag diff diff-${idea.difficulty} rcol-hide`}>{DIFFICULTY_LABEL[idea.difficulty]}</span>
+                <span class="mc rcol-hide">{idea.ckb_properties[0]}</span>
+                <div class="rval rcol-hide">
+                  <span class="n">{idea.ckb_properties.length}</span>
+                  <span class="l">CKB Props</span>
+                </div>
+                <a class="btn btn-ghost btn-sm rview" href={`/ideas/${idea.id}/`}>View</a>
               </div>
-              <span class={`tag diff diff-${idea.difficulty} rcol-hide`}>{DIFFICULTY_LABEL[idea.difficulty]}</span>
-              <span class="mc rcol-hide">{idea.ckb_properties[0]}</span>
-              <a class="btn btn-ghost btn-sm rview" href={`/ideas/${idea.id}/`}>View</a>
-            </div>
-          ))}
+            );
+          })}
         </div>
         <p class="empty" id="empty" style="display:none">No ideas match those filters</p>
 
@@ -81,29 +98,27 @@ const open = ideas.filter((i) => i.status === "open").length;
   </div>
 
   <script is:inline>
-    const q = document.getElementById("q");
-    const cat = document.getElementById("category");
-    const diff = document.getElementById("difficulty");
-    const prop = document.getElementById("property");
     const rows = [...document.querySelectorAll(".row")];
     const count = document.getElementById("count");
     const empty = document.getElementById("empty");
+    const f = { status: "", cat: "" };
     function apply() {
-      const term = q.value.trim().toLowerCase();
-      const c = cat.value, d = diff.value, p = prop.value;
-      let shown = 0;
+      let n = 0;
       for (const r of rows) {
-        const ok =
-          (!term || r.dataset.title.includes(term) || r.dataset.summary.includes(term)) &&
-          (!c || r.dataset.category === c) &&
-          (!d || r.dataset.difficulty === d) &&
-          (!p || r.dataset.properties.split("||").includes(p));
+        const ok = (!f.status || r.dataset.status === f.status) && (!f.cat || r.dataset.category === f.cat);
         r.style.display = ok ? "" : "none";
-        if (ok) shown++;
+        if (ok) n++;
       }
-      count.textContent = shown;
-      empty.style.display = shown ? "none" : "";
+      count.textContent = n;
+      empty.style.display = n ? "none" : "";
     }
-    [q, cat, diff, prop].forEach((el) => el.addEventListener("input", apply));
+    document.querySelectorAll(".chip").forEach((c) => {
+      c.addEventListener("click", () => {
+        const g = c.dataset.group;
+        document.querySelectorAll(`.chip[data-group="${g}"]`).forEach((x) => x.classList.toggle("active", x === c));
+        f[g] = c.dataset.value;
+        apply();
+      });
+    });
   </script>
 </Base>
