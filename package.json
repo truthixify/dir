@@ -1,0 +1,15 @@
+{
+  "name": "dir-tools",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Validation tooling for the dir idea catalog",
+  "scripts": {
+    "validate": "node scripts/validate-ideas.mjs"
+  },
+  "devDependencies": {
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1",
+    "gray-matter": "^4.0.3"
+  }
+}
