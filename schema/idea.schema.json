@@ -1,0 +1,163 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/ckb/dir/schema/idea.schema.json",
+  "title": "dir idea",
+  "description": "YAML frontmatter for an idea file under ideas/. The Markdown body below the frontmatter holds the human-readable spec.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "title",
+    "status",
+    "category",
+    "summary",
+    "ckb_properties",
+    "difficulty",
+    "acceptance_criteria"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Stable slug, prefixed with a zero-padded number. Matches the filename without extension.",
+      "pattern": "^[0-9]{4}-[a-z0-9]+(?:-[a-z0-9]+)*$"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 100
+    },
+    "status": {
+      "type": "string",
+      "description": "Lifecycle status. draft/open/exists/superseded are curation-set; claimed/building/shipped are driven by on-chain state.",
+      "enum": ["draft", "open", "claimed", "building", "shipped", "exists", "superseded"]
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "Developer Tooling",
+        "On-Chain Storage & Data Ownership",
+        "Spore/DOB",
+        "RGB++ & Bitcoin",
+        "AI Agents",
+        "OTX & Intent-Based",
+        "Fiber Network",
+        "Identity & Security",
+        "Social & Community"
+      ]
+    },
+    "summary": {
+      "type": "string",
+      "description": "One- to two-sentence pitch shown in the catalog list.",
+      "minLength": 10,
+      "maxLength": 400
+    },
+    "ckb_properties": {
+      "type": "array",
+      "description": "Which CKB primitives the idea exploits.",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "enum": [
+          "Cell Model",
+          "First-Class Assets",
+          "1 CKB = 1 Byte",
+          "Lock/Type Scripts",
+          "RISC-V VM",
+          "Spawn Syscall",
+          "Spore/DOB",
+          "RGB++",
+          "Account Abstraction",
+          "OTX/CoBuild",
+          "Fiber Network",
+          "Off-chain Compute / On-chain Verify",
+          "Header Deps / Time-lock",
+          "Cell Deps"
+        ]
+      }
+    },
+    "difficulty": {
+      "type": "string",
+      "enum": ["good-first", "intermediate", "advanced"]
+    },
+    "primitives": {
+      "type": "array",
+      "description": "Building blocks a builder will need (e.g. xUDT, JoyID, CCC, Fiber node, ckb-js-vm).",
+      "items": { "type": "string" }
+    },
+    "inspired_by": {
+      "type": "string",
+      "description": "Optional cross-ecosystem analogue (e.g. 'Ethereum Attestation Service')."
+    },
+    "author": {
+      "type": "string",
+      "description": "Idea author for attribution (handle or identity). Mirrors the on-chain `author` attestation."
+    },
+    "references": {
+      "type": "array",
+      "description": "Links: forum threads, docs, prior art.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["title", "url"],
+        "properties": {
+          "title": { "type": "string" },
+          "url": { "type": "string", "format": "uri" }
+        }
+      }
+    },
+    "forkable_starter": {
+      "type": "string",
+      "description": "Optional URL to a degit-able scaffold repo that gets a builder running locally fast.",
+      "format": "uri"
+    },
+    "acceptance_criteria": {
+      "type": "array",
+      "description": "Checklist defining 'done'. This IS the bounty release condition — its hash is pinned into the escrow Cell. Write it concretely and verifiably.",
+      "minItems": 1,
+      "items": { "type": "string", "minLength": 5 }
+    },
+    "needs_collaborators": {
+      "type": "array",
+      "description": "Roles a claimant is looking for, for team-formation.",
+      "items": {
+        "type": "string",
+        "enum": ["rust", "frontend", "design", "smart-contract", "product", "docs", "research"]
+      }
+    },
+    "supersedes": {
+      "type": "string",
+      "description": "id of an idea this one replaces."
+    },
+    "superseded_by": {
+      "type": "string",
+      "description": "id of the idea that replaces this one (set when status = superseded)."
+    },
+    "exists_as": {
+      "type": "array",
+      "description": "When status = exists: links to the live project(s) that already cover this.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "url"],
+        "properties": {
+          "name": { "type": "string" },
+          "url": { "type": "string", "format": "uri" }
+        }
+      }
+    },
+    "shipped_projects": {
+      "type": "array",
+      "description": "When status = shipped: projects built from this idea, linking the loop closed.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "url"],
+        "properties": {
+          "name": { "type": "string" },
+          "url": { "type": "string", "format": "uri" },
+          "builder": { "type": "string" }
+        }
+      }
+    }
+  }
+}
