@@ -1,0 +1,44 @@
+name: Flag an idea as already existing
+description: An idea in the catalog now exists (or always did) on CKB. Helps keep the catalog honest.
+title: "[exists] <idea id> — <project>"
+labels: ["exists", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Catalog honesty is a core invariant (see CLAUDE.md). Thanks for flagging.
+  - type: input
+    id: idea_id
+    attributes:
+      label: Idea id
+      description: The catalog id, e.g. 0007-on-chain-attestation-protocol
+      placeholder: "0007-on-chain-attestation-protocol"
+    validations:
+      required: true
+  - type: input
+    id: project
+    attributes:
+      label: The live project
+      placeholder: "Project name"
+    validations:
+      required: true
+  - type: input
+    id: url
+    attributes:
+      label: Link to the live project
+      placeholder: "https://..."
+    validations:
+      required: true
+  - type: dropdown
+    id: coverage
+    attributes:
+      label: How fully does it cover the idea?
+      options:
+        - Fully — should be status: exists
+        - Partially — note the remaining gap below
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes / remaining gap

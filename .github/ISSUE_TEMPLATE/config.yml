@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Add an idea directly (preferred)
+    url: https://github.com/truthixify/dir/blob/main/CONTRIBUTING.md
+    about: The best way to add an idea is a pull request that adds an ideas/ file. See CONTRIBUTING.md.
+  - name: Read the spec
+    url: https://github.com/truthixify/dir/blob/main/SPEC.md
+    about: How commitments, stakes, bounties, and release work.
