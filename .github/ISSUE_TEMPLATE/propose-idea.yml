@@ -1,0 +1,47 @@
+name: Propose an idea
+description: Suggest a CKB-native idea you don't want to write up as a PR yourself.
+title: "[idea] <short title>"
+labels: ["idea", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Prefer opening a PR that adds an `ideas/NNNN-slug.md` file — see [CONTRIBUTING.md](https://github.com/truthixify/dir/blob/main/CONTRIBUTING.md). Use this form only if you want to suggest an idea for someone else to write up.
+  - type: input
+    id: title
+    attributes:
+      label: Idea in one line
+      placeholder: "A composable attestation standard native to CKB"
+    validations:
+      required: true
+  - type: dropdown
+    id: category
+    attributes:
+      label: Category
+      options:
+        - Developer Tooling
+        - On-Chain Storage & Data Ownership
+        - Spore/DOB
+        - RGB++ & Bitcoin
+        - AI Agents
+        - OTX & Intent-Based
+        - Fiber Network
+        - Identity & Security
+        - Social & Community
+        - Not sure
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem & why CKB
+      description: What's missing today, and which CKB property makes this possible or better here?
+    validations:
+      required: true
+  - type: textarea
+    id: exists
+    attributes:
+      label: Does anything like this already exist on CKB?
+      description: We keep the catalog honest. Name any partial/existing project and the gap, or say you checked and found nothing.
+    validations:
+      required: true
