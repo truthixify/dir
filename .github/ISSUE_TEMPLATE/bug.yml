@@ -1,0 +1,24 @@
+name: Bug / site issue
+description: Something in the site, tooling, or docs is broken or wrong.
+title: "[bug] <short summary>"
+labels: ["bug", "triage"]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What's wrong
+      description: What happened, and what you expected instead.
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Go to ...
+        2. ...
+  - type: input
+    id: where
+    attributes:
+      label: Where
+      description: URL, page, or file (e.g. site bounty board, scripts/validate-ideas.mjs)

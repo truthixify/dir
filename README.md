@@ -73,4 +73,4 @@ Read [`CONTRIBUTING.md`](./CONTRIBUTING.md). The fastest way to help right now: 
 
 ## License
 
-Ideas in this repo are **CC0** (public domain). Projects you build from them are **yours**. See [`CONTRIBUTING.md`](./CONTRIBUTING.md#license--ownership).
+Ideas in this repo are **CC0** (public domain — [`ideas/LICENSE`](./ideas/LICENSE)). The code is **Apache-2.0** ([`LICENSE`](./LICENSE)). Projects you build from an idea are **yours**. See [`CONTRIBUTING.md`](./CONTRIBUTING.md#license--ownership).
