@@ -1,16 +1,21 @@
 ---
 import Base from "../layouts/Base.astro";
-import { getIdeas, DIFFICULTY_ORDER, DIFFICULTY_LABEL, STATUS_LABEL } from "../lib/ideas.js";
+import { getIdeas, DIFFICULTY_ORDER, DIFFICULTY_LABEL, STATUS_LABEL, STATE_CLASS } from "../lib/ideas.js";
 
 const ideas = getIdeas();
 const categories = [...new Set(ideas.map((i) => i.category))].sort();
 const properties = [...new Set(ideas.flatMap((i) => i.ckb_properties))].sort();
 const difficulties = DIFFICULTY_ORDER.filter((d) => ideas.some((i) => i.difficulty === d));
+
+const goodFirst = ideas.filter((i) => i.difficulty === "good-first").length;
+const shipped = ideas.filter((i) => i.status === "shipped").length;
+const claimed = ideas.filter((i) => i.status === "claimed" || i.status === "building").length;
 ---
 
 <Base>
   <section class="hero">
     <div class="wrap">
+      <div class="stamp mono-caps">DIR · v0.1 · CKB-NATIVE PROJECT DIRECTORY · CC0</div>
       <h1>Build something <span class="lead-accent">CKB-native</span>.</h1>
       <p>
         {ideas.length} project ideas that exploit what only CKB can do — the Cell model, Spore/DOB,
@@ -34,36 +39,42 @@ const difficulties = DIFFICULTY_ORDER.filter((d) => ideas.some((i) => i.difficul
         <option value="">Any CKB property</option>
         {properties.map((p) => <option value={p}>{p}</option>)}
       </select>
-      <span class="count" id="count">{ideas.length} ideas</span>
+    </div>
+
+    <div class="statstrip mono-caps">
+      <span id="count">{ideas.length} ideas</span> · {claimed} claimed · {shipped} shipped · {goodFirst} good-first
     </div>
 
     <div class="grid" id="grid">
       {
         ideas.map((idea) => (
           <article
-            class="card"
+            class={`card state-${STATE_CLASS[idea.status]}`}
             data-title={idea.title.toLowerCase()}
             data-summary={(idea.summary || "").toLowerCase()}
             data-category={idea.category}
             data-difficulty={idea.difficulty}
             data-properties={idea.ckb_properties.join("||")}
           >
-            <div>
-              <span class="num">#{idea.num}</span>
-              <a class="title" href={`/ideas/${idea.id}/`}>{idea.title}</a>
-            </div>
+            <span class="idtab">DIR · #{idea.num}</span>
+            <a class="title" href={`/ideas/${idea.id}/`}>{idea.title}</a>
             <p class="summary">{idea.summary}</p>
             <div class="meta">
-              <span class={`badge diff-${idea.difficulty}`}>{DIFFICULTY_LABEL[idea.difficulty]}</span>
-              <span class="badge cat">{idea.category}</span>
-              {idea.status !== "open" && <span class="badge status">{STATUS_LABEL[idea.status]}</span>}
+              <span class={`tag diff diff-${idea.difficulty}`}>{DIFFICULTY_LABEL[idea.difficulty]}</span>
+              {idea.status !== "open" && (
+                <span class={`pill ${STATE_CLASS[idea.status]}`}>{STATUS_LABEL[idea.status]}</span>
+              )}
               {idea.ckb_properties.slice(0, 2).map((p) => <span class="tag">{p}</span>)}
+            </div>
+            <div class="formfoot">
+              <span>{idea.category}</span>
+              <span>CKB-NATIVE IDEA · CC0</span>
             </div>
           </article>
         ))
       }
     </div>
-    <p class="empty" id="empty" style="display:none">No ideas match those filters.</p>
+    <p class="empty" id="empty" style="display:none">No ideas match those filters</p>
   </div>
 
   <script is:inline>

@@ -40,3 +40,14 @@ export const STATUS_LABEL = {
   exists: "Already exists",
   superseded: "Superseded",
 };
+
+// Maps a lifecycle status to a design.md state-color class (open is neutral on purpose).
+export const STATE_CLASS = {
+  draft: "muted",
+  open: "open",
+  claimed: "amber",
+  building: "amber",
+  shipped: "jade",
+  exists: "muted",
+  superseded: "crimson",
+};
