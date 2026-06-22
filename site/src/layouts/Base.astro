@@ -1,0 +1,35 @@
+---
+import "../styles/global.css";
+const { title = "dir — CKB-native project ideas", description = "An open directory of CKB-native project ideas where builders publicly commit, build, and ship." } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="wrap">
+        <a class="brand" href="/"><span>dir</span> · CKB ideas</a>
+        <nav class="nav">
+          <a href="/">Catalog</a>
+          <a href="https://github.com/" target="_blank" rel="noopener">Contribute</a>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <slot />
+    </main>
+    <footer>
+      <div class="wrap">
+        Ideas are CC0. Projects built from them are yours. · <a href="https://www.nervos.org/" target="_blank" rel="noopener">Nervos CKB</a>
+      </div>
+    </footer>
+  </body>
+</html>

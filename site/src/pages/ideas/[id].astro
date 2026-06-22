@@ -1,0 +1,52 @@
+---
+import Base from "../../layouts/Base.astro";
+import { getIdeas, DIFFICULTY_LABEL, STATUS_LABEL } from "../../lib/ideas.js";
+
+export function getStaticPaths() {
+  return getIdeas().map((idea) => ({ params: { id: idea.id }, props: { idea } }));
+}
+
+const { idea } = Astro.props;
+---
+
+<Base title={`#${idea.num} ${idea.title} — dir`} description={idea.summary}>
+  <article class="detail wrap">
+    <a class="back" href="/">← All ideas</a>
+    <div class="meta" style="margin-top:14px">
+      <span class={`badge diff-${idea.difficulty}`}>{DIFFICULTY_LABEL[idea.difficulty]}</span>
+      <span class="badge cat">{idea.category}</span>
+      <span class="badge status">{STATUS_LABEL[idea.status]}</span>
+    </div>
+    <h1><span class="num">#{idea.num}</span> {idea.title}</h1>
+
+    <div class="frontmeta">
+      <dl>
+        <dt>CKB properties</dt>
+        <dd>{idea.ckb_properties.join(" · ")}</dd>
+        {idea.primitives?.length && (<><dt>Primitives</dt><dd>{idea.primitives.join(" · ")}</dd></>)}
+        {idea.inspired_by && (<><dt>Inspired by</dt><dd>{idea.inspired_by}</dd></>)}
+        {idea.needs_collaborators?.length && (<><dt>Wants</dt><dd>{idea.needs_collaborators.join(" · ")}</dd></>)}
+        {idea.author && (<><dt>Author</dt><dd>{idea.author}</dd></>)}
+        {idea.references?.length && (
+          <>
+            <dt>References</dt>
+            <dd>
+              {idea.references.map((r, i) => (
+                <>{i > 0 && " · "}<a href={r.url} target="_blank" rel="noopener">{r.title}</a></>
+              ))}
+            </dd>
+          </>
+        )}
+      </dl>
+    </div>
+
+    <section class="frontmeta">
+      <strong>Acceptance criteria</strong> <span style="color:var(--muted)">— shipped means all of these</span>
+      <ul style="margin:10px 0 0; padding-left:20px">
+        {idea.acceptance_criteria.map((c) => <li style="color:#cdd7e1">{c}</li>)}
+      </ul>
+    </section>
+
+    <div class="prose" set:html={idea.html} />
+  </article>
+</Base>
