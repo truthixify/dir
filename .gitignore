@@ -4,3 +4,6 @@ dist/
 .astro/
 .env
 .env.local
+
+# local design reference clone — not part of this repo
+tmp/
