@@ -1,77 +1,132 @@
 ---
 import Base from "../../layouts/Base.astro";
-import { getIdeas, DIFFICULTY_LABEL, STATUS_LABEL, STATE_CLASS } from "../../lib/ideas.js";
+import { getIdeas, STATE_CLASS, DIFFICULTY_LABEL, STATUS_LABEL } from "../../lib/ideas.js";
 
+const all = getIdeas();
 export function getStaticPaths() {
   return getIdeas().map((idea) => ({ params: { id: idea.id }, props: { idea } }));
 }
-
 const { idea } = Astro.props;
 const state = STATE_CLASS[idea.status];
+const related = all.filter((i) => i.category === idea.category && i.id !== idea.id).slice(0, 3);
+const wallet = `ckb1q…${String(idea.num).padStart(4, "0")}`; // illustrative registry handle
 ---
 
 <Base title={`#${idea.num} ${idea.title} — dir`} description={idea.summary}>
-  <article class="detail wrap">
-    <a class="back" href="/">← All ideas</a>
+  <div class="detail">
+    <div class="wrap">
+      <a class="back" href="/ideas/">← Catalog</a>
 
-    <!-- hero manifest -->
-    <div class="manifest">
-      <span class="idtab">DIR · #{idea.num}</span>
-      <div class={`band ${state}`}>
-        {idea.status !== "open" && <span class="dot" />}
-        {STATUS_LABEL[idea.status]} · {idea.category}
-      </div>
-      <div class="inner">
-        <h1><span class="num">#{idea.num}</span>{idea.title}</h1>
-        <div class="subtitle mono-caps">{idea.category} · {DIFFICULTY_LABEL[idea.difficulty]}</div>
-        <p style="color:#d8d1c3; margin:10px 0 0">{idea.summary}</p>
-        <div class="tags">
-          <span class={`tag diff diff-${idea.difficulty}`}>{DIFFICULTY_LABEL[idea.difficulty]}</span>
-          {idea.ckb_properties.map((p) => <span class="tag">{p}</span>)}
+      <div class="cols">
+        <!-- LEFT: the manifest document -->
+        <div>
+          <div class="manifest">
+            <span class="idtab">DIR · #{String(idea.num).padStart(4, "0")}</span>
+            <div class={`band ${state}`}>
+              {idea.status !== "open" && <span class="pdot"></span>}
+              {STATUS_LABEL[idea.status]} · {idea.category}
+            </div>
+            <div class="inner">
+              <h1><span class="num">#{idea.num}</span>{idea.title}</h1>
+              <div class="sub mc">{idea.category} · {DIFFICULTY_LABEL[idea.difficulty]}</div>
+              <p class="lead">{idea.summary}</p>
+              <div class="tags">
+                <span class={`tag diff diff-${idea.difficulty}`}>{DIFFICULTY_LABEL[idea.difficulty]}</span>
+                {idea.ckb_properties.map((p) => <span class="tag">{p}</span>)}
+              </div>
+            </div>
+            <div class="formfoot" style="padding:9px 20px">
+              <span>DIR · IDEA MANIFEST · CC0</span>
+              <span>#{String(idea.num).padStart(4, "0")} / 0030</span>
+            </div>
+          </div>
+
+          {idea.difficulty === "good-first" && (
+            <div class="slice">
+              <span class="h">◇ Good first idea</span>
+              <p>A scoped, beginner-friendly entry into building on CKB. See the "good first slice" in the spec below for a minimal path to a shippable v1.</p>
+            </div>
+          )}
+
+          <!-- registry metadata -->
+          <section class="section-card">
+            <div class="band open">REGISTRY METADATA</div>
+            <div class="body">
+              <dl class="kv">
+                <dt>CKB properties</dt><dd>{idea.ckb_properties.join(" · ")}</dd>
+                {idea.primitives?.length ? (<><dt>Primitives</dt><dd>{idea.primitives.join(" · ")}</dd></>) : null}
+                {idea.inspired_by ? (<><dt>Inspired by</dt><dd>{idea.inspired_by}</dd></>) : null}
+                {idea.needs_collaborators?.length ? (<><dt>Wants</dt><dd>{idea.needs_collaborators.join(" · ")}</dd></>) : null}
+                {idea.author ? (<><dt>Author</dt><dd>{idea.author}</dd></>) : null}
+                {idea.references?.length ? (
+                  <><dt>References</dt><dd>{idea.references.map((r, i) => (<>{i > 0 && " · "}<a href={r.url} target="_blank" rel="noopener">{r.title}</a></>))}</dd></>
+                ) : null}
+              </dl>
+            </div>
+          </section>
+
+          <!-- acceptance criteria -->
+          <section class="section-card">
+            <div class="band open">ACCEPTANCE CRITERIA · SHIPPED MEANS ALL OF THESE</div>
+            <div class="body">
+              <ul class="criteria">{idea.acceptance_criteria.map((c) => <li>{c}</li>)}</ul>
+            </div>
+          </section>
+
+          <!-- full spec -->
+          <section class="section-card">
+            <div class="band open">SPECIFICATION</div>
+            <div class="body"><div class="prose" set:html={idea.html} /></div>
+          </section>
         </div>
-      </div>
-      <div class="formfoot" style="padding:8px 20px">
-        <span>DIR · IDEA MANIFEST · CC0</span>
-        <span>#{idea.num} / {String(30).padStart(2, "0")}</span>
+
+        <!-- RIGHT: commitment rail -->
+        <aside>
+          <div class="rail">
+            <div class="commit">
+              <div class="inner">
+                <span class="mc">COMMITMENT</span>
+                <div class="big">
+                  <span class="brackets"><span class="n">{idea.status === "open" ? "OPEN" : STATUS_LABEL[idea.status]}</span></span>
+                </div>
+                <div class="acts">
+                  <button class="btn btn-violet" disabled>Commit to build</button>
+                  <button class="btn btn-ghost" disabled>Wish for this</button>
+                  <button class="btn btn-ghost" disabled>Stake CKB</button>
+                  <button class="btn btn-ghost" disabled>Fund a bounty</button>
+                </div>
+                <p class="note">No commitments yet — be the first. On-chain actions ship to testnet soon; until then, claim an idea by opening a PR.</p>
+              </div>
+            </div>
+
+            <div class="reg">
+              <div class="inner">
+                <span class="mc">REGISTRATION</span>
+                <div style="margin-top:12px">
+                  <div class="row"><span class="k">ID</span><span>#{String(idea.num).padStart(4, "0")}</span></div>
+                  <div class="row"><span class="k">STATUS</span><span>{STATUS_LABEL[idea.status].toUpperCase()}</span></div>
+                  <div class="row"><span class="k">DIFFICULTY</span><span>{DIFFICULTY_LABEL[idea.difficulty].toUpperCase()}</span></div>
+                  <div class="row"><span class="k">REGISTRY</span><span>{wallet}</span></div>
+                  <div class="row"><span class="k">LICENSE</span><span>CC0</span></div>
+                </div>
+              </div>
+            </div>
+
+            {related.length > 0 && (
+              <div class="reg">
+                <div class="inner">
+                  <span class="mc">RELATED · {idea.category.toUpperCase()}</span>
+                  <div style="margin-top:12px">
+                    {related.map((r) => (
+                      <div class="row"><a href={`/ideas/${r.id}/`}>#{r.num} {r.title}</a></div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </aside>
       </div>
     </div>
-
-    <!-- metadata -->
-    <section class="section">
-      <div class="band open">REGISTRY METADATA</div>
-      <div class="body">
-        <dl class="kv">
-          <dt>CKB properties</dt>
-          <dd>{idea.ckb_properties.join(" · ")}</dd>
-          {idea.primitives?.length && (<><dt>Primitives</dt><dd>{idea.primitives.join(" · ")}</dd></>)}
-          {idea.inspired_by && (<><dt>Inspired by</dt><dd>{idea.inspired_by}</dd></>)}
-          {idea.needs_collaborators?.length && (<><dt>Wants</dt><dd>{idea.needs_collaborators.join(" · ")}</dd></>)}
-          {idea.author && (<><dt>Author</dt><dd>{idea.author}</dd></>)}
-          {idea.references?.length && (
-            <>
-              <dt>References</dt>
-              <dd>
-                {idea.references.map((r, i) => (
-                  <>{i > 0 && " · "}<a href={r.url} target="_blank" rel="noopener">{r.title}</a></>
-                ))}
-              </dd>
-            </>
-          )}
-        </dl>
-      </div>
-    </section>
-
-    <!-- acceptance criteria -->
-    <section class="section">
-      <div class="band open">ACCEPTANCE CRITERIA · SHIPPED MEANS ALL OF THESE</div>
-      <div class="body">
-        <ul class="criteria">
-          {idea.acceptance_criteria.map((c) => <li>{c}</li>)}
-        </ul>
-      </div>
-    </section>
-
-    <!-- rendered spec body -->
-    <div class="prose" set:html={idea.html} />
-  </article>
+  </div>
 </Base>

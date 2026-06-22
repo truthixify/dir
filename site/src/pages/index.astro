@@ -1,107 +1,179 @@
 ---
 import Base from "../layouts/Base.astro";
-import { getIdeas, DIFFICULTY_ORDER, DIFFICULTY_LABEL, STATUS_LABEL, STATE_CLASS } from "../lib/ideas.js";
+import IdeaCard from "../components/IdeaCard.astro";
+import { getIdeas } from "../lib/ideas.js";
 
 const ideas = getIdeas();
-const categories = [...new Set(ideas.map((i) => i.category))].sort();
-const properties = [...new Set(ideas.flatMap((i) => i.ckb_properties))].sort();
-const difficulties = DIFFICULTY_ORDER.filter((d) => ideas.some((i) => i.difficulty === d));
-
+const total = ideas.length;
 const goodFirst = ideas.filter((i) => i.difficulty === "good-first").length;
-const shipped = ideas.filter((i) => i.status === "shipped").length;
 const claimed = ideas.filter((i) => i.status === "claimed" || i.status === "building").length;
+const shipped = ideas.filter((i) => i.status === "shipped").length;
+
+const featured = [...ideas]
+  .sort((a, b) => (b.difficulty === "good-first" ? 1 : 0) - (a.difficulty === "good-first" ? 1 : 0) || a.num - b.num)
+  .slice(0, 6);
+
+const steps = [
+  ["01", "Browse", "Scan the registry of CKB-native ideas, indexed by state and signal."],
+  ["02", "Wish", "Signal demand on-chain. Wished ideas rise so builders see what's wanted."],
+  ["03", "Commit", "Claim an idea with a public attestation and a deadline. Stake CKB to claim it exclusively."],
+  ["04", "Build", "Do the work in the open. Post progress; your track record compounds."],
+  ["05", "Ship", "Link the project, meet the acceptance criteria, get the bounty released."],
+  ["06", "Reputation", "Every shipped idea compounds into a portable, on-chain builder record."],
+];
+
+const faqs = [
+  ["Is it free?", "Browsing, wishing, and committing are free. Staking and funding bounties are optional and denominated in CKB."],
+  ["Who owns the ideas?", "Ideas in the registry are CC0 — public domain. Any project you build from one is entirely yours."],
+  ["How is a bounty released?", "A ship is checked against the idea's acceptance criteria and confirmed by a curator multisig. Funds live in user Cells — the platform never custodies them. Release is semi-trusted in v1, by design."],
+  ["What if I claim and don't finish?", "A free claim simply lapses and the idea reopens. A staked claim can return to you, slash to a community pool, or convert into a bounty that funds the next builder — your choice when you stake."],
+  ["Is this on mainnet?", "No. The on-chain layer ships to testnet first, and the escrow lock is audited before it ever holds real CKB on mainnet."],
+  ["How do I add an idea?", "Open a pull request that adds an ideas/ file. CI validates it against the schema. See CONTRIBUTING."],
+];
 ---
 
 <Base>
+  <!-- HERO -->
   <section class="hero">
+    <div class="cellgrid"></div>
     <div class="wrap">
-      <div class="stamp mono-caps">DIR · v0.1 · CKB-NATIVE PROJECT DIRECTORY · CC0</div>
-      <h1>Build something <span class="lead-accent">CKB-native</span>.</h1>
-      <p>
-        {ideas.length} project ideas that exploit what only CKB can do — the Cell model, Spore/DOB,
-        RGB++, Fiber, OTX, and on-chain verification. Pick one, commit publicly, ship it.
-      </p>
+      <div class="topstamp">
+        <span class="wordmark" style="font-size:24px"><span class="br">[</span><b>dir</b><span class="br">]</span></span>
+        <span class="mc">DIR · v0.1 · CKB-NATIVE PROJECT DIRECTORY · CC0</span>
+      </div>
+
+      <div class="metastrip">
+        <div class="cell"><span class="mc">ENTRIES</span><span class="v">{String(total).padStart(2, "0")}</span></div>
+        <div class="cell"><span class="mc">CLAIMED</span><span class="v">{String(claimed).padStart(2, "0")}</span></div>
+        <div class="cell"><span class="mc">SHIPPED</span><span class="v">{String(shipped).padStart(2, "0")}</span></div>
+        <div class="cell"><span class="mc">GOOD-FIRST</span><span class="v">{String(goodFirst).padStart(2, "0")}</span></div>
+      </div>
+
+      <div class="heromain">
+        <div>
+          <h1>Build something <span class="accent">CKB-native</span>.</h1>
+          <p>dir is an open registry of CKB-native project ideas. Wish for them. Claim them. Stake on them. Ship them — on-chain.</p>
+          <div class="herocta">
+            <a class="btn btn-violet" href="/ideas/">Browse ideas →</a>
+            <a class="btn btn-ghost" href="https://github.com/truthixify/dir/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener">Submit an idea</a>
+          </div>
+        </div>
+        <aside>
+          <div class="reg">
+            <div class="inner">
+              <span class="mc">REGISTRATION</span>
+              <div style="margin-top:14px">
+                <div class="row"><span class="k">REGISTRY</span><span>DIR / TESTNET</span></div>
+                <div class="row"><span class="k">ENTRIES</span><span>{total}</span></div>
+                <div class="row"><span class="k">LICENSE</span><span>CC0 / APACHE-2.0</span></div>
+                <div class="row"><span class="k">AUTHORED</span><span>BY BUILDERS</span></div>
+              </div>
+            </div>
+          </div>
+          <div style="text-align:right;margin-top:10px"><span class="mc">FORM 0001 · MANIFEST</span></div>
+        </aside>
+      </div>
     </div>
   </section>
 
-  <div class="wrap">
-    <div class="filters">
-      <input type="search" id="q" placeholder="Search ideas…" autocomplete="off" />
-      <select id="category">
-        <option value="">All categories</option>
-        {categories.map((c) => <option value={c}>{c}</option>)}
-      </select>
-      <select id="difficulty">
-        <option value="">Any difficulty</option>
-        {difficulties.map((d) => <option value={d}>{DIFFICULTY_LABEL[d]}</option>)}
-      </select>
-      <select id="property">
-        <option value="">Any CKB property</option>
-        {properties.map((p) => <option value={p}>{p}</option>)}
-      </select>
+  <!-- HOW IT WORKS -->
+  <section class="section">
+    <div class="wrap">
+      <div class="head">
+        <span class="mc">HOW IT WORKS</span>
+        <h2>From idea to shipped, in the open.</h2>
+      </div>
+      <div class="steps">
+        {steps.map(([n, t, d]) => (
+          <div class="step">
+            <span class="n">{n}</span>
+            <h3>{t}</h3>
+            <p>{d}</p>
+          </div>
+        ))}
+      </div>
     </div>
+  </section>
 
-    <div class="statstrip mono-caps">
-      <span id="count">{ideas.length} ideas</span> · {claimed} claimed · {shipped} shipped · {goodFirst} good-first
+  <!-- WHAT YOU CAN BUILD -->
+  <section class="section">
+    <div class="wrap">
+      <div class="head">
+        <span class="mc">WHAT YOU CAN BUILD</span>
+        <h2>{total} ideas in the registry.</h2>
+        <p>Each one exploits what only CKB can do — the Cell model, Spore/DOB, RGB++, Fiber, OTX, on-chain verification.</p>
+      </div>
+      <div class="grid">
+        {featured.map((idea) => <IdeaCard idea={idea} />)}
+      </div>
+      <div style="margin-top:28px"><a class="btn btn-ghost" href="/ideas/">See all {total} ideas →</a></div>
     </div>
+  </section>
 
-    <div class="grid" id="grid">
-      {
-        ideas.map((idea) => (
-          <article
-            class={`card state-${STATE_CLASS[idea.status]}`}
-            data-title={idea.title.toLowerCase()}
-            data-summary={(idea.summary || "").toLowerCase()}
-            data-category={idea.category}
-            data-difficulty={idea.difficulty}
-            data-properties={idea.ckb_properties.join("||")}
-          >
-            <span class="idtab">DIR · #{idea.num}</span>
-            <a class="title" href={`/ideas/${idea.id}/`}>{idea.title}</a>
-            <p class="summary">{idea.summary}</p>
-            <div class="meta">
-              <span class={`tag diff diff-${idea.difficulty}`}>{DIFFICULTY_LABEL[idea.difficulty]}</span>
-              {idea.status !== "open" && (
-                <span class={`pill ${STATE_CLASS[idea.status]}`}>{STATUS_LABEL[idea.status]}</span>
-              )}
-              {idea.ckb_properties.slice(0, 2).map((p) => <span class="tag">{p}</span>)}
-            </div>
-            <div class="formfoot">
-              <span>{idea.category}</span>
-              <span>CKB-NATIVE IDEA · CC0</span>
-            </div>
-          </article>
-        ))
-      }
+  <!-- FOR BUILDERS / FUNDERS -->
+  <section class="section">
+    <div class="wrap">
+      <div class="cols2">
+        <div class="panel"><div class="inner">
+          <span class="mc">FOR BUILDERS</span>
+          <h3 style="margin-top:10px">Find work worth doing.</h3>
+          <ul>
+            <li>Pick from a curated registry of real CKB gaps</li>
+            <li>Claim publicly; stake CKB to claim it exclusively</li>
+            <li>Ship, get the bounty, build a portable reputation</li>
+          </ul>
+          <a class="btn btn-violet" href="/ideas/">Browse ideas →</a>
+        </div></div>
+        <div class="panel"><div class="inner">
+          <span class="mc">FOR FUNDERS</span>
+          <h3 style="margin-top:10px">Fund what you want built.</h3>
+          <ul>
+            <li>Put a bounty on any idea in the registry</li>
+            <li>Funds escrowed in Cells — never custodied by the platform</li>
+            <li>Refunded automatically if no one ships in time</li>
+          </ul>
+          <a class="btn btn-ghost" href="/ideas/">Find an idea to fund →</a>
+        </div></div>
+      </div>
     </div>
-    <p class="empty" id="empty" style="display:none">No ideas match those filters</p>
-  </div>
+  </section>
 
-  <script is:inline>
-    const q = document.getElementById("q");
-    const cat = document.getElementById("category");
-    const diff = document.getElementById("difficulty");
-    const prop = document.getElementById("property");
-    const cards = [...document.querySelectorAll(".card")];
-    const count = document.getElementById("count");
-    const empty = document.getElementById("empty");
+  <!-- COMMITMENT TIERS -->
+  <section class="section">
+    <div class="wrap">
+      <div class="head">
+        <span class="mc">COMMITMENT, ON-CHAIN</span>
+        <h2>The more you stake, the louder the signal.</h2>
+      </div>
+      <div class="tiers">
+        <div class="tier cyan"><span class="t">Watching</span><p>Wish for an idea. A free on-chain demand signal.</p></div>
+        <div class="tier"><span class="t">Committed</span><p>A free public claim with a deadline. Non-exclusive.</p></div>
+        <div class="tier magenta"><span class="t">Staked</span><p>Lock CKB to claim exclusively. Skin in the game.</p></div>
+        <div class="tier violet"><span class="t">Backed</span><p>Staked, with a bounty attached. Funded and committed.</p></div>
+      </div>
+    </div>
+  </section>
 
-    function apply() {
-      const term = q.value.trim().toLowerCase();
-      const c = cat.value, d = diff.value, p = prop.value;
-      let shown = 0;
-      for (const card of cards) {
-        const ok =
-          (!term || card.dataset.title.includes(term) || card.dataset.summary.includes(term)) &&
-          (!c || card.dataset.category === c) &&
-          (!d || card.dataset.difficulty === d) &&
-          (!p || card.dataset.properties.split("||").includes(p));
-        card.style.display = ok ? "" : "none";
-        if (ok) shown++;
-      }
-      count.textContent = shown + (shown === 1 ? " idea" : " ideas");
-      empty.style.display = shown ? "none" : "";
-    }
-    [q, cat, diff, prop].forEach((el) => el.addEventListener("input", apply));
-  </script>
+  <!-- FAQ -->
+  <section class="section">
+    <div class="wrap">
+      <div class="head"><span class="mc">FAQ</span><h2>Questions.</h2></div>
+      <div class="faq">
+        {faqs.map(([q, a]) => (
+          <details><summary>{q}</summary><p>{a}</p></details>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta">
+    <div class="wrap">
+      <h2>Pick one. Ship it.</h2>
+      <div class="row">
+        <a class="btn btn-violet" href="/ideas/">Browse ideas →</a>
+        <a class="btn btn-ghost" href="https://github.com/truthixify/dir/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener">Submit an idea</a>
+      </div>
+    </div>
+  </section>
 </Base>

@@ -1,0 +1,18 @@
+---
+// dir logo: four violet L-brackets framing a Cell square (the glyph) + [dir] wordmark.
+const { size = 22, wordmark = true } = Astro.props;
+---
+<a class="logo" href="/" aria-label="dir — home">
+  <svg class="glyph" width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">
+    <g stroke="var(--violet)" stroke-width="2" fill="none" stroke-linecap="square">
+      <polyline points="2,7 2,2 7,2" />
+      <polyline points="17,2 22,2 22,7" />
+      <polyline points="22,17 22,22 17,22" />
+      <polyline points="7,22 2,22 2,17" />
+      <rect x="10" y="10" width="4" height="4" fill="var(--violet)" stroke="none" />
+    </g>
+  </svg>
+  {wordmark && (
+    <span class="wordmark"><span class="br">[</span><b>dir</b><span class="br">]</span></span>
+  )}
+</a>

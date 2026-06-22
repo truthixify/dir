@@ -67,18 +67,19 @@ Why these read as one family: every accent shares a high, print-ink chroma and i
 
 | Token | Hex | Role |
 |---|---|---|
-| `bg` | `#0C0B09` | Primary background — the warm black ground |
-| `surface` | `#16130E` | Raised fill — cards, sections, inputs |
-| `line` | `#3A352B` | Borders, structural line-work (visible on black) |
-| `hairline` | `#26221B` | Soft inner dividers |
+| `bg` | `#15130F` | Primary background — the dark paper ground |
+| `surface` | `#15130F` | Card/section fills share the paper; borders define them |
+| `surface-2` | `#1E1B15` | Muted areas — filter bar, table-row hover, code |
+| `line` | `#F4F1E8` (ink) | Structural borders are cream ink — full or low-opacity, never brown |
+| `hairline` | `rgba(244,241,232,.14)` | Soft inner dividers (ink at 14%) |
 | `text` | `#F4F1E8` | Primary type (warm off-white) |
-| `muted` | `#9C9484` | Secondary text, mono labels, form footers, timestamps |
-| `violet` | `#7C6BFF` | **Brand.** Links, L-brackets, ID tabs, registration marks, primary accent — "the dir color" |
-| `cyan` | `#2BC4DA` | **Wish / demand** — "people want this" |
-| `amber` | `#FFB838` | **In progress** — claimed / building / assigned (fill only) |
-| `jade` | `#33D49B` | **Shipped** — done, loop closed, success |
-| `magenta` | `#FF5DAD` | **Value locked** — staked, funded, live bounty (skin in the game) |
-| `crimson` | `#FF5B4D` | **Alarm** — expired / abandoned / disputed / superseded |
+| `muted` | `#9A9588` | Secondary text, mono labels, form footers, timestamps |
+| `violet` | `#7B6BF7` | **Brand.** Links, L-brackets, ID tabs, registration marks, primary accent — "the dir color" |
+| `cyan` | `#2FCBE6` | **Wish / demand** — "people want this" |
+| `amber` | `#F2A516` | **In progress** — claimed / building / assigned (fill only) |
+| `jade` | `#2DD69A` | **Shipped** — done, loop closed, success |
+| `magenta` | `#F55AA6` | **Value locked** — staked, funded, live bounty (skin in the game) |
+| `crimson` | `#F26477` | **Alarm** — expired / abandoned / disputed / superseded |
 
 ### Text-on-fill rule
 
@@ -91,11 +92,11 @@ State colors are tuned to glow on the black ground and are **usable as text/icon
 
 For hover wells, selected rows, chart fills, and quiet status zones — deep, desaturated versions that sit just above `bg`:
 
-`violet-well #221C46` · `cyan-well #0E2A30` · `amber-well #2E2410` · `jade-well #0E2A22` · `magenta-well #2E1322` · `crimson-well #2E1512`. Generate hover/press tints within these families only — never introduce a new hue.
+`violet-well rgba(123,107,247,.14)` · `cyan-well rgba(47,203,230,.13)` · `amber-well rgba(242,165,22,.13)` · `jade-well rgba(45,214,154,.13)` · `magenta-well rgba(245,90,166,.13)` · `crimson-well rgba(242,100,119,.13)`. Generate hover/press tints within these families only — never introduce a new hue.
 
 ### Brighter hover variants
 
-For link/accent hover: `violet-hi #9A8DFF`. For other accents, lift luminance ~12% within the same hue for hover; never shift hue.
+For link/accent hover: `violet-hi #A29BFF`. For other accents, lift luminance ~12% within the same hue for hover; never shift hue.
 
 ### State → color mapping (the contract)
 
@@ -576,25 +577,30 @@ On first paint and on refresh, the glyph does a 320ms "index": the inner notch /
 
 ```css
 :root {
-  /* neutrals — warm black ground */
-  --bg:       #0C0B09;
-  --surface:  #16130E;
-  --line:     #3A352B;
-  --hairline: #26221B;
-  --text:     #F4F1E8;
-  --muted:    #9C9484;
+  /* neutrals — dark paper ground */
+  --bg:        #15130F;   /* paper — page + card fills */
+  --surface:   #15130F;   /* cards share the paper; borders define them */
+  --surface-2: #1E1B15;   /* muted areas — filter bar, row hover, code */
+  --text:      #F4F1E8;
+  --muted:     #9A9588;
+
+  /* borders are ink (cream), never brown */
+  --line:    #F4F1E8;                       /* strong structural borders = ink */
+  --hairline: rgba(244, 241, 232, 0.14);    /* subtle inner dividers */
+  --ink-50:  rgba(244, 241, 232, 0.5);
+  --ink-20:  rgba(244, 241, 232, 0.2);
 
   /* brand */
-  --violet:    #7C6BFF;
-  --violet-hi: #9A8DFF;
-  --violet-well: #221C46;
+  --violet:    #7B6BF7;
+  --violet-hi: #A29BFF;
+  --violet-well: rgba(123, 107, 247, 0.14);
 
-  /* state inks (glow on black) */
-  --cyan:    #2BC4DA;  --cyan-well:    #0E2A30; /* wish/demand     — black text on fill */
-  --amber:   #FFB838;  --amber-well:   #2E2410; /* in progress     — fill only, black text */
-  --jade:    #33D49B;  --jade-well:    #0E2A22; /* shipped         — black text on fill */
-  --magenta: #FF5DAD;  --magenta-well: #2E1322; /* value locked    — light text on fill */
-  --crimson: #FF5B4D;  --crimson-well: #2E1512; /* alarm           — light text on fill */
+  /* state inks (glow on the dark paper) */
+  --cyan:    #2FCBE6;  --cyan-well:    rgba(47, 203, 230, 0.13);  /* wish/demand  — black text on fill */
+  --amber:   #F2A516;  --amber-well:   rgba(242, 165, 22, 0.13);  /* in progress  — fill only, black text */
+  --jade:    #2DD69A;  --jade-well:    rgba(45, 214, 154, 0.13);  /* shipped      — black text on fill */
+  --magenta: #F55AA6;  --magenta-well: rgba(245, 90, 166, 0.13);  /* value locked — light text on fill */
+  --crimson: #F26477;  --crimson-well: rgba(242, 100, 119, 0.13); /* alarm        — light text on fill */
 
   /* structure */
   --radius: 0px;
@@ -606,14 +612,15 @@ On first paint and on refresh, the glyph does a 320ms "index": the inner notch /
 ```js
 // tailwind.config — colors (dark mode only)
 colors: {
-  bg: "#0C0B09", surface: "#16130E", line: "#3A352B", hairline: "#26221B",
-  text: "#F4F1E8", muted: "#9C9484",
-  violet:  { DEFAULT: "#7C6BFF", hi: "#9A8DFF", well: "#221C46" },
-  cyan:    { DEFAULT: "#2BC4DA", well: "#0E2A30" },
-  amber:   { DEFAULT: "#FFB838", well: "#2E2410" },
-  jade:    { DEFAULT: "#33D49B", well: "#0E2A22" },
-  magenta: { DEFAULT: "#FF5DAD", well: "#2E1322" },
-  crimson: { DEFAULT: "#FF5B4D", well: "#2E1512" },
+  bg: "#15130F", surface: "#15130F", "surface-2": "#1E1B15",
+  text: "#F4F1E8", muted: "#9A9588",
+  line: "#F4F1E8", hairline: "rgba(244,241,232,0.14)",
+  violet:  { DEFAULT: "#7B6BF7", hi: "#A29BFF", well: "rgba(123,107,247,0.14)" },
+  cyan:    { DEFAULT: "#2FCBE6", well: "rgba(47,203,230,0.13)" },
+  amber:   { DEFAULT: "#F2A516", well: "rgba(242,165,22,0.13)" },
+  jade:    { DEFAULT: "#2DD69A", well: "rgba(45,214,154,0.13)" },
+  magenta: { DEFAULT: "#F55AA6", well: "rgba(245,90,166,0.13)" },
+  crimson: { DEFAULT: "#F26477", well: "rgba(242,100,119,0.13)" },
 },
 borderRadius: { none: "0px", DEFAULT: "0px" },
 ```
@@ -623,7 +630,7 @@ borderRadius: { none: "0px", DEFAULT: "0px" },
 ## 12. Decisions log (non-obvious calls)
 
 - **Dark — black background (user decision).** The registry/manifest aesthetic is rendered as light line-work stamped on a warm near-black ground. (Earlier drafts were light/paper; the black ground is the chosen direction.) The site `site/` is skinned to these tokens.
-- **Warm black, not pure black.** `bg #0C0B09` and `text #F4F1E8` are both warm-shifted so the page reads like ink on dark stock, not a vibrating `#FFF`-on-`#000` terminal. No pure black, no pure white.
+- **Dark paper, not pure black.** `bg #15130F` and `text #F4F1E8` are both warm-shifted so the page reads like ink on dark stock, not a vibrating `#FFF`-on-`#000` terminal. **Borders are cream ink** (`#F4F1E8` at full/low opacity), never a brown line — this keeps the structure crisp and matches the registry reference.
 - **Accents are inks, not neon.** Despite the black ground, accents are flat saturated print inks with **no glow/bloom/`text-shadow`** — the deliberate distance from the crypto neon-on-black cliché.
 - **Brand = violet, not blue.** Distinctive in a teal-green-heavy ecosystem; leaves blue/green free for state.
 - **Green means shipped, not brand.** Because brand is violet, `jade` is free to mean success/shipped — the most intuitive mapping — without competing with identity.

@@ -1,6 +1,16 @@
 ---
 import "../styles/global.css";
-const { title = "dir — CKB-native project ideas", description = "An open directory of CKB-native project ideas where builders publicly commit, build, and ship." } = Astro.props;
+import Logo from "../components/Logo.astro";
+const {
+  title = "dir — Build something CKB-native",
+  description = "An open directory of CKB-native project ideas. Wish, commit, stake, ship — on-chain.",
+} = Astro.props;
+const path = Astro.url.pathname;
+const nav = [
+  { label: "Ideas", href: "/ideas/" },
+  { label: "Showcase", href: "/showcase/" },
+  { label: "Docs", href: "https://github.com/truthixify/dir/blob/main/SPEC.md", ext: true },
+];
 ---
 
 <!doctype html>
@@ -10,27 +20,59 @@ const { title = "dir — CKB-native project ideas", description = "An open direc
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     <meta name="description" content={description} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
   </head>
   <body>
     <header class="site-header">
       <div class="wrap">
-        <a class="brand" href="/"><span class="mark"></span><b>dir</b></a>
+        <Logo />
         <nav class="nav">
-          <a href="/">Ideas</a>
-          <a href="https://github.com/truthixify/dir" target="_blank" rel="noopener">Contribute</a>
-          <a href="https://github.com/truthixify/dir/blob/main/SPEC.md" target="_blank" rel="noopener">Spec</a>
+          {nav.map((l) => (
+            <a href={l.href} aria-current={!l.ext && path.startsWith(l.href) ? "page" : undefined}
+               {...(l.ext ? { target: "_blank", rel: "noopener" } : {})}>{l.label}</a>
+          ))}
         </nav>
+        <div class="headright">
+          <button class="btn btn-violet btn-sm" disabled>Connect</button>
+        </div>
       </div>
     </header>
+
     <main>
       <slot />
     </main>
+
     <footer>
-      <div class="wrap">
-        <span class="stamp">DIR · CKB-NATIVE PROJECT DIRECTORY · CC0</span>
-        <span class="meta">Ideas CC0 · Code Apache-2.0 · <a href="https://www.nervos.org/" target="_blank" rel="noopener">Nervos CKB</a></span>
+      <div class="top">
+        <div class="lead">
+          <Logo />
+          <p>An open, CC0 registry of CKB-native project ideas. Pick one. Ship it.</p>
+        </div>
+        <div class="col">
+          <h4>Project</h4>
+          <a href="/ideas/">Catalog</a>
+          <a href="/showcase/">Showcase</a>
+          <a href="https://github.com/truthixify/dir" target="_blank" rel="noopener">GitHub</a>
+        </div>
+        <div class="col">
+          <h4>Protocol</h4>
+          <a href="https://github.com/truthixify/dir/blob/main/SPEC.md" target="_blank" rel="noopener">Spec</a>
+          <a href="https://github.com/truthixify/dir/blob/main/design.md" target="_blank" rel="noopener">Design</a>
+          <a href="https://www.nervos.org/" target="_blank" rel="noopener">Nervos CKB</a>
+        </div>
+        <div class="col">
+          <h4>Contribute</h4>
+          <a href="https://github.com/truthixify/dir/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener">How to add</a>
+          <a href="https://github.com/truthixify/dir/issues" target="_blank" rel="noopener">Issues</a>
+        </div>
+      </div>
+      <div class="bot">
+        <div class="wrap">
+          <span class="stamp">DIR · CKB-NATIVE PROJECT DIRECTORY · CC0</span>
+          <span class="mc">IDEAS CC0 · CODE APACHE-2.0 · CKB TESTNET</span>
+        </div>
       </div>
     </footer>
   </body>

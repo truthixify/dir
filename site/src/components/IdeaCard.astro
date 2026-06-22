@@ -1,0 +1,31 @@
+---
+// Layered "manifest" card matching the dir-registry reference:
+// id tab + 2px outer border + 6px ground gap + inner border + status band + body + form footer.
+import { STATE_CLASS, STATUS_LABEL, DIFFICULTY_LABEL } from "../lib/ideas.js";
+const { idea } = Astro.props;
+const state = STATE_CLASS[idea.status];
+const id4 = String(idea.num).padStart(4, "0");
+---
+<article class="mcard">
+  <span class="idtab">DIR · #{id4}</span>
+  <div class="mcard-outer">
+    <div class="mcard-inner">
+      <div class={`band ${state}`}>
+        {idea.status !== "open" && <span class="pdot"></span>}{STATUS_LABEL[idea.status]}
+      </div>
+      <div class="mcard-body">
+        <span class="mc">{idea.category} · {DIFFICULTY_LABEL[idea.difficulty]}</span>
+        <a class="mtitle" href={`/ideas/${idea.id}/`}>{idea.title}</a>
+        <p class="msum">{idea.summary}</p>
+        <div class="mtags">
+          <span class={`tag diff diff-${idea.difficulty}`}>{DIFFICULTY_LABEL[idea.difficulty]}</span>
+          {idea.ckb_properties.slice(0, 2).map((p) => <span class="tag">{p}</span>)}
+        </div>
+      </div>
+      <div class="mfoot">
+        <span>DIR · IDEA · CC0</span>
+        <a class="mview" href={`/ideas/${idea.id}/`}>VIEW →</a>
+      </div>
+    </div>
+  </div>
+</article>

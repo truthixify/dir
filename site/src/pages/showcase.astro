@@ -1,0 +1,44 @@
+---
+import Base from "../layouts/Base.astro";
+import IdeaCard from "../components/IdeaCard.astro";
+import { getIdeas } from "../lib/ideas.js";
+
+const shippedIdeas = getIdeas().filter((i) => i.status === "shipped");
+---
+
+<Base title="Showcase — dir" description="Projects shipped from ideas in the registry.">
+  <div class="catalog">
+    <section class="pagehead">
+      <div class="wrap">
+        <span class="mc">DIR · SHOWCASE</span>
+        <h1>Shipped from the registry.</h1>
+        <p>Every project here started as an idea in the catalog, was claimed, built, and verified against its acceptance criteria — closing the loop.</p>
+      </div>
+    </section>
+
+    <section>
+      <div class="wrap" style="padding-top:36px;padding-bottom:64px">
+        {shippedIdeas.length === 0 ? (
+          <div style="border:1px solid var(--line);background:var(--surface);padding:56px 24px;text-align:center">
+            <svg width="44" height="44" viewBox="0 0 24 24" style="margin:0 auto 18px;display:block">
+              <g stroke="var(--violet)" stroke-width="1.6" fill="none" stroke-linecap="square">
+                <polyline points="3,8 3,3 8,3" /><polyline points="16,3 21,3 21,8" />
+                <polyline points="21,16 21,21 16,21" /><polyline points="8,21 3,21 3,16" />
+                <rect x="10" y="10" width="4" height="4" fill="var(--violet)" stroke="none" />
+              </g>
+            </svg>
+            <div class="mc ink" style="font-size:13px">NOTHING SHIPPED YET</div>
+            <p style="color:var(--muted);max-width:46ch;margin:12px auto 22px">
+              The first shipped project will appear here. Claim an idea, build it, and close the loop.
+            </p>
+            <a class="btn btn-violet" href="/ideas/">Browse ideas →</a>
+          </div>
+        ) : (
+          <div class="grid">
+            {shippedIdeas.map((idea) => <IdeaCard idea={idea} />)}
+          </div>
+        )}
+      </div>
+    </section>
+  </div>
+</Base>
